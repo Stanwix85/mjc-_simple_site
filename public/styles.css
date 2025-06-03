@@ -1,0 +1,106 @@
+/* global css */
+
+*,
+*::after,
+*::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html {
+  height: 100%;
+}
+body {
+    background-color: whitesmoke;
+    
+}
+/* end global css */
+/* header start */
+#cart {
+    margin: 1%;
+}
+nav > div {
+    background-color: darkmagenta;
+}
+.nav-link {
+    color: azure;
+}
+/* header end  */
+
+
+/* body/index.ejs smartphone*/
+@media screen and (max-width: 766px){
+    .card-container {
+        display: block;
+        padding-left: 23%;
+        padding-top: 3%;
+    }
+
+    .card {
+        width: 80%;
+        height: auto;  
+    }
+
+}
+/* end smartphone */
+
+/* body/index.ejs tablet */
+@media screen and (min-width: 767px) and (max-width: 991px) {
+.card-container {
+    display: grid;
+    grid-template-columns: 45% 45%;
+    gap: 2%;
+    margin-left: 4%;
+
+    
+}
+}
+/* end tablet */
+
+/* body/index.ejs laptop */
+@media screen and (min-width: 992px) and (max-width: 1200px) {
+    
+    #carouselExample{
+        width: 80%;
+        margin-left: 10%;
+    }
+    .card-container {
+        display: grid;
+        grid-template-columns: 23% 23% 23% 23%;
+        gap: 2%;
+        margin-left: 4%;
+    }
+    .card {
+        width: 100%;
+        height: auto;
+        
+    }
+    }
+    /* end laptop */
+/* body/index.ejs desktop */
+@media screen and (min-width: 1201px) {
+    body{
+        margin-left: 15%;
+        margin-right: 15%;
+            background-color: blue;
+    }
+    nav > div {
+        background-color: darkmagenta;
+        padding-left: 20%;
+    }
+     
+    #carouselExample{
+        width: auto;
+    }
+    .card-container {
+        display: grid;
+        grid-template-columns: 23% 23% 23% 23%;
+        gap: 1%;
+    }
+    .card {
+        width: 100%;
+        height: auto;
+        
+    }
+    }
+    /* end desktop */
