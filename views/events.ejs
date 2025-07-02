@@ -1,0 +1,47 @@
+<%- include ("partials/header.ejs") %>
+
+     <main class="container my-5">
+        <% if (shows && shows.length > 0) { %>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                <% shows.forEach(function(show) { %>
+                    <div class="col">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body d-flex flex-column">
+                                <h3 class="card-title text-primary"><%= show.title %></h3>
+                                <p class="card-text mb-1"><strong>Type:</strong> <span class="badge bg-secondary"><%= show.show_type %></span></p>
+                                <p class="card-text mb-1"><strong>Date:</strong> <%= new Date(show.date).toLocaleDateString('en-GB') %></p>
+                                <p class="card-text mb-1"><strong>Time:</strong> <%= show.time %></p>
+                                <p class="card-text mb-3"><strong>Location:</strong> <%= show.location %></p>
+                                <p class="card-text flex-grow-1"><%= show.description %></p>
+                                <p class="card-text fs-5 fw-bold text-success mt-auto">Price: €<%= show.price %></p>
+                                <button class="btn btn-primary btn-block">Book Tickets</button>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        <% } else 
+            { %>
+            <div class="alert alert-info text-center" role="alert">
+                <p class="mb-0">No <%= showTypeDisplay %> shows found at this time. Please check back later!</p>
+            </div>
+        <% } %>
+    </main>
+<!-- case statements to display list of events (cases: cinema, shows, workshops) -->
+
+<!-- each event will have a picture, description, price, time/date, age group -->
+
+<!-- 10-20 events per window depending on device -->
+
+<!-- option for all events, banner on picture for nearly full and sold out< -->
+
+
+
+
+
+
+
+
+
+
+<%- include ("partials/footer.ejs") %>

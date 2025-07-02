@@ -31,23 +31,22 @@
     <div class="card-body">
       <h5 class="card-title">Cinema</h5>
       <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-      <a href="#" class="btn btn-primary">Go somewhere</a>
+      <button type="button" class="btn btn-primary show-category-btn" data-show-type="cinema">View Movies</button>
     </div>
   </div>
   <div class="card" >
     <img src="/images/shows.jpg" class="card-img-top" alt="...">
     <div class="card-body">
       <h5 class="card-title">Shows</h5>
-      <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-      <a href="#" class="btn btn-primary">Go somewhere</a>
-    </div>
+      <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p><button type="button" class="btn btn-primary show-category-btn" data-show-type="spectacle">View Shows</button>
+      </div>
   </div>
   <div class="card">
     <img src="/images/workshop.jpg" class="card-img-top" alt="...">
     <div class="card-body">
       <h5 class="card-title">Workshops</h5>
       <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-      <a href="#" class="btn btn-primary">Go somewhere</a>
+       <button type="button" class="btn btn-primary show-category-btn" data-show-type="atelier">View Workshops</button>
     </div>
   </div>
   <div class="card">
@@ -55,11 +54,40 @@
     <div class="card-body">
       <h5 class="card-title">See what we have for your kids</h5>
       <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-      <a href="#" class="btn btn-primary">Age A</a>
-      <a href="#" class="btn btn-primary">Age B</a>
-      <a href="#" class="btn btn-primary">Age C</a>
+      <% %>
+      <button type="button" class="btn btn-outline-info age-filter-btn"  data-min-age="0" data-max-age="3">Below 4</button>
+                        <button type="button" class="btn btn-outline-info age-filter-btn" data-min-age="4" data-max-age="7">Age 4-7</button>
+                        <button type="button" class="btn btn-outline-info age-filter-btn" data-min-age="8" data-max-age="999">Above 7</button>
+                    </div>
     </div>
   </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Selector for all buttons that trigger a category search (including age-filtered kids)
+        const allFilterButtons = document.querySelectorAll('.show-category-btn, .age-filter-btn');
+
+        allFilterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const showType = button.dataset.showType;
+                const minAge = button.dataset.minAge || ''; 
+                const maxAge = button.dataset.maxAge || ''; 
+
+                let url = `/events?type=${showType}`;
+
+                // Append age parameters if they exist on the clicked button
+                if (minAge !== '') {
+                    url += `&min_age=${minAge}`;
+                }
+                if (maxAge !== '') {
+                    url += `&max_age=${maxAge}`;
+                }
+
+                window.location.href = url;
+            });
+        });
+    });
+</script>
 
 <%- include ("partials/footer.ejs") %>
