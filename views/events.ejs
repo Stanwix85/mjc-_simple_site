@@ -5,18 +5,44 @@
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                 <% shows.forEach(function(show) { %>
                     <div class="col">
-                        <div class="card h-100 shadow-sm">
-                            <div class="card-body d-flex flex-column">
-                                <h3 class="card-title text-primary"><%= show.title %></h3>
-                                <p class="card-text mb-1"><strong>Type:</strong> <span class="badge bg-secondary"><%= show.show_type %></span></p>
-                                <p class="card-text mb-1"><strong>Date:</strong> <%= new Date(show.date).toLocaleDateString('en-GB') %></p>
-                                <p class="card-text mb-1"><strong>Time:</strong> <%= show.time %></p>
-                                <p class="card-text mb-3"><strong>Location:</strong> <%= show.location %></p>
-                                <p class="card-text flex-grow-1"><%= show.description %></p>
-                                <p class="card-text fs-5 fw-bold text-success mt-auto">Price: €<%= show.price %></p>
-                                <button class="btn btn-primary btn-block">Book Tickets</button>
-                            </div>
-                        </div>
+                       <div class="card h-100">
+    <img src="/images/shows/<%= show.image %>" class="card-img-top" alt="<%= show.title %>">
+    <div class="card-body d-flex flex-column">
+        <h5 class="card-title"><%= show.title %></h5>
+        <p class="card-text"><%= show.description %></p>
+        <p class="card-text">Date: <%= show.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
+        <p class="card-text">Time: <%= show.time.slice(0, 5) %></p>
+        <p class="card-text">Type: <%= show.show_type %></p>
+        <p class="card-text">Age Range: <%= show.min_age %> - <%= show.max_age %></p>
+
+        <% if (show.quantity > 0 && show.quantity < 10) { %>
+            <div class="position-absolute top-0 start-50 translate-middle-x mt-2">
+                <span class="badge bg-warning text-dark px-3 py-2 fs-6 rounded-pill shadow-sm">Almost Full!</span>
+            </div>
+        <% } else if (show.quantity === 0) { %>
+            <div class="position-absolute top-0 start-50 translate-middle-x mt-2">
+                <span class="badge bg-danger px-3 py-2 fs-6 rounded-pill shadow-sm">Sold Out!</span>
+            </div>
+        <% } %>
+        <p class="card-text fs-5 fw-bold text-success mt-auto">
+            <% if(!locals.isAdherent) {%>
+                Price: €<%= show.price %>
+            <% }else{%>
+                Price: €<%= show.price_adherent %>
+            <%} %>
+        </p>
+        <div class="mt-auto">
+            <form action="/addToCart" method="POST" class="d-flex align-items-center">
+                <input type="hidden" name="itemId" value="<%= show.id %>">
+                <input type="hidden" name="itemName" value="<%= show.title %>">
+                <%if(show.quantity > 0) {%>
+                <input type="number" name="quantity" class="form-control me-2" value="1" min="1" max="<%= show.quantity < 8 ? show.quantity : 8 %>" style="width: 70px;">
+                <button type="submit" class="btn btn-primary" <%= show.quantity === 0 ? 'disabled' : '' %>>Add to Cart</button>
+                <%  } %>
+            </form>
+        </div>
+    </div>
+</div>
                     </div>
                 <% }); %>
             </div>
