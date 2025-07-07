@@ -1,5 +1,5 @@
 
-<%- include ("partials/header.ejs") %>
+<%- include ("partials/header.ejs", {isAuthenticated: isAuthenticated, isAdherent: isAdherent, user: user, cart: cart}) %>
 
 
 
@@ -62,31 +62,117 @@
     </div>
   </div>
 </div>
+<!-- Membership/Guest Modal copied from gemini -->
+<div class="modal fade" id="membershipModal" tabindex="-1" aria-labelledby="membershipModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="membershipModalLabel">Welcome! Are you a Member?</h5>
+            </div>
+            <div class="modal-body">
+                <p>Enter your email to verify if you are a member and unlock special pricing. Otherwise, continue as a guest.</p>
+                <form id="emailVerifyForm" action="/verify-email" method="POST">
+                    <div class="mb-3">
+                        <label for="memberEmail" class="form-label">Your Email</label>
+                        <input type="email" class="form-control" id="memberEmail" name="email" required>
+                        <!-- Password field is required by LocalStrategy, but can be hidden/ignored -->
+                        <input type="hidden" name="password" value="temp_password_for_adherent_check">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 mb-2">Verify Membership</button>
+                </form>
+                <form action="/guest-login" method="POST">
+                    <button type="submit" class="btn btn-secondary w-100">Continue as Guest</button>
+                </form>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <small class="text-muted">
+                    Use "member@example.com" to test as an adherent.<br>
+                    Use "guest@example.com" or any other email to test as a guest.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
+    // These variables receive their values from the EJS server-side rendering
+    const isAuthenticated = <%- locals.isAuthenticated %>;
+    const isAdherent = <%- locals.isAdherent %>;
+    const currentUser = <%- JSON.stringify(locals.user || null) %>;
+
+
+     console.log("JS: isAuthenticated:", isAuthenticated);
+    console.log("JS: isAdherent:", isAdherent);
+    console.log("JS: currentUser:", currentUser);
+
     document.addEventListener('DOMContentLoaded', () => {
-        // Selector for all buttons that trigger a category search (including age-filtered kids)
+        const membershipModalElement = document.getElementById('membershipModal');
+        let membershipModalInstance; // Use a distinct name for the Bootstrap Modal instance
+
+        if (membershipModalElement) {
+            membershipModalInstance = new bootstrap.Modal(membershipModalElement);
+        } else {
+            console.warn("Membership modal element not found.");
+        }
+
+        // --- Fix: Modal not appearing on site opening ---
+        // Only show the modal automatically if the user is NOT authenticated.
+        // FIX: Corrected 'Authenticated' to 'isAuthenticated' (case-sensitive)
+        if (!isAuthenticated) {
+            if (membershipModalInstance) { // Check if modal instance was successfully created
+                membershipModalInstance.show();
+            }
+        }
+
+        // --- Fix: Search buttons not working ---
         const allFilterButtons = document.querySelectorAll('.show-category-btn, .age-filter-btn');
 
         allFilterButtons.forEach(button => {
             button.addEventListener('click', () => {
-                const showType = button.dataset.showType;
-                const minAge = button.dataset.minAge || ''; 
-                const maxAge = button.dataset.maxAge || ''; 
+                const showType = button.dataset.showType || '';
+                const minAge = button.dataset.minAge || '';
+                const maxAge = button.dataset.maxAge || '';
 
-                let url = `/events?type=${showType}`;
+                // Start URL with /events
+                let url = `/events`;
+                const params = [];
+
+                // Add showType if it's not empty
+                if (showType !== '') {
+                    params.push(`type=${encodeURIComponent(showType)}`);
+                }
 
                 // Append age parameters if they exist on the clicked button
                 if (minAge !== '') {
-                    url += `&min_age=${minAge}`;
+                    params.push(`min_age=${encodeURIComponent(minAge)}`);
                 }
                 if (maxAge !== '') {
-                    url += `&max_age=${maxAge}`;
+                    params.push(`max_age=${encodeURIComponent(maxAge)}`);
                 }
 
+                // Join parameters with '&' and prepend '?' if there are any
+                if (params.length > 0) {
+                    url += `?${params.join('&')}`;
+                }
+                
+                // For debugging, console.log the URL before redirecting
+                console.log("Redirecting to:", url);
                 window.location.href = url;
             });
         });
+
+        // --- Feature: Open modal with Login button in navbar ---
+        // FIX: Get the login button element by its new ID
+        const loginButton = document.getElementById('navbarLoginButton'); 
+
+        if (loginButton && membershipModalInstance) {
+            loginButton.addEventListener('click', (event) => {
+                event.preventDefault(); // Prevent default link behavior (e.g., navigating to /login)
+                membershipModalInstance.show(); // Show the modal
+            });
+        } else if (loginButton) {
+            console.warn("Login button found, but membership modal instance not created.");
+        }
     });
 </script>
 

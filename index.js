@@ -5,23 +5,26 @@ import { fileURLToPath } from "url";
 import methodOverride from"method-override";
 import pg from "pg";
 import passport from "passport";
-import { Strategy } from "passport-local";
-import { title } from "process";
+import { Strategy as LocalStrategy } from "passport-local";
+// import { title } from "process";
 import session from "express-session";
 import env from "dotenv";
-import { session } from "passport";
+import { v4 as uuidv4 } from 'uuid';
 // import bootstrap from "bootstrap";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// constances 
+// Constants 
 const app = express();
 const port = 3000;
 const saltRounds = 10;
 let adherent = false;
 env.config();
 
+const Ad_Email_Mock = "member@example.com"
+const Guest_Email_Mock = "guest@example.com"
 
-// functions
+
+// functions, middleware and setup
 app.use('/bootstrap', express.static(join(__dirname, 'node_modules', 'bootstrap', 'dist')));
 app.use(express.static(join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -30,18 +33,33 @@ app.set('view engine', 'ejs');
 app.set('views',join(__dirname + '/views'));
 
 app.use(session({
-  secret: "PASSSECRET",
+  secret: process.env.SESSION_SECRET || 'supersecretkey',
   resave: false,
   saveUninitialized: true, 
   cookie: {
     maxAge: 1000 * 60 * 60 * 24,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production'
   }
 })
 );
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+ app.use((req, res, next) => {
+      if (!req.session.cart) {
+        req.session.cart = [];
+      }
+      next();
+    });
+
+    // end of middleware
+
+
+
 // database connection
+
 const pool = new pg.Pool({
   user: process.env.PG_USER,
   host: process.env.PG_HOST,
@@ -49,28 +67,147 @@ const pool = new pg.Pool({
   password: process.env.PG_PASSWORD,
   port: process.env.PG_PORT,
 });
-pool.on('error', (err) => {
-  console.error('Unexpected error on client');
-  process.exit(-1);
-});
-// cart empty list 
 
-
-app.get("/", (req, res) => {
-  if (req.isAuthenticated()) {
-    res.render('index');
-  } else {
-    res.redirect('login');
-  }
+// Test DB connection 
+pool.connect()
+  .then(client => {
+    console.log('DB connection successful');
+      client.release();
+  })
+  .catch(err => {
+    console.error('DB connection failed: ', err.stack);
+    console.error('Please check .env file and SQL server status')
+    process.exit(1);
   });
 
-  app.get("/cart", (req, res) => {
-    res.render("cart")
-  })
-  // get request for cart page
-  // post, put, delete requests for cart
-  // post request to change avaliable tickets
+pool.on('error', (err, client) => {
+  console.error('Unexpected error on client', err.stack);
+  if (client) {
+    client.release();
+  }else{
+  process.exit(-1);
+  }
+});
+    passport.use(new LocalStrategy( 
+      {
+        usernameField: 'email', 
+        passwordField: 'password',
+        passReqToCallback: true
+      },
+      async (req, email, password, done) => {
 
+        let isAdherent = false;
+        try{
+        if (email === Ad_Email_Mock) {
+          isAdherent =  true;
+        } else if (email === Guest_Email_Mock) {
+          isAdherent = false;
+        } else {
+          isAdherent = false;
+          console.log(`${email} is not a recognized member`)
+        }
+      } catch (error) {
+        console.error("error during external verification (mock): ", error);
+        isAdherent = false
+      }
+      // storing boolean--this will be used by deserializeUser
+        // req.session.isAdherent = isAdherent;
+      // guests will be given a unique ID
+
+        const userId = isAdherent ? email : `guest-${uuidv4}`;
+        const user = { id: userId, email: email, isAdherent: isAdherent };
+         return done(null, user);
+      
+    }));
+
+  // serialize and deserialize user
+  passport.serializeUser((user, done) => {
+    console.log(`Serializing user:  ${user.id}`)
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  let isAdherent = false;
+  let email = id;
+  if (id.startsWith('guest-')){
+    isAdherent = false;
+    email = 'guest@example.com'
+  } else if (id === Ad_Email_Mock){
+    isAdherent = true
+  }
+  const user = { id: id, email: email, isAdherent: isAdherent };
+  done(null, { id: id, email: email, isAdherent: isAdherent } );
+});
+
+
+// Routes 
+app.get("/", (req, res) => {
+    console.log("--- Rendering Homepage (/) ---");
+    console.log("req.isAuthenticated():", req.isAuthenticated());
+    console.log("req.session.isAdherent:", req.session.isAdherent);
+    console.log("req.user:", req.user); // This will show the id, email, and isAdherent from Passport
+    console.log("--- End Rendering Homepage (/) ---");
+
+    res.render('index', {
+      isAuthenticated: req.isAuthenticated(),
+      // isAdherent: req.user ? req.user.isAdherent : false,
+      isAdherent: (req.user && req.user.hasOwnProperty('isAdherent')) ? req.user.isAdherent : (req.session.isAdherent || false),
+      user: req.user || null,
+      cart: req.session.cart
+    });
+
+  });
+
+   // login routes
+  app.post('/verify-email', (req, res, next) => {passport.authenticate('local', (err, user, info) => {
+    if(err) { return next(err); }
+    if(!user) {
+      const guestUser = { id: `guest-${uuidv4()}`, email: Guest_Email_Mock, isAdherent: false };
+      // req.session.isAdherent = false;
+      req.logIn(guestUser, (err) => {
+        if(err) { return next(err); }
+        req.session.isAdherent = false;
+      
+      return res.redirect('/');
+      });
+      return
+    }
+    req.logIn(user, (err) => {
+      if (err) { return next(err); }
+      req.session.isAdherent = user.isAdherent;
+      return res.redirect('/');
+    });
+    // req.session.isAdherent = user.isAdherent;
+  })(req, res, next);
+});
+
+  app.post("/guest-login", (req, res, next) => {
+    const guestUser = { id: `guest-${uuidv4()}`, email: Guest_Email_Mock, isAdherent: false};
+    // req.session.isAdherent = guestUser.isAdherent
+    req.logIn(guestUser, (err) => {
+      if (err) { return next(err); }
+      req.session.isAdherent = guestUser.isAdherent;
+
+      return res.redirect("/")
+    });
+  });
+  app.get("/login", (req, res) => {
+  res.render('login', { message: req.flash('error') }); // Requires connect-flash if used
+});
+
+  // logout routes
+  app.get('/logout', (req, res, next) => {
+    req.logout((err) => {
+      if (err) { return next(err); }
+      req.session.destroy((err) => {
+        if (err) { return next(err); }
+        res.clearCookie('connect.sid');
+        res.redirect('/');
+      });
+    });
+  });
+
+  // events routes
     app.get("/events", async (req, res) => {
       let showType = req.query.type ? req.query.type.trim() : undefined;
         if (showType === 'undefined' || showType === '')
@@ -132,7 +269,12 @@ app.get("/", (req, res) => {
 
         res.render('events', {
           shows: shows, 
-          showTypeDisplay: showTypeDisplay
+          showTypeDisplay: showTypeDisplay,
+          isAuthenticated: req.isAuthenticated(),
+          // isAdherent: req.user ? req.user.isAdherent : false,
+          isAdherent: (req.user && req.user.hasOwnProperty('isAdherent')) ? req.user.isAdherent : (req.session.isAdherent || false),
+          user: req.user || null,
+          cart: req.session.cart || []
 
         });
       } catch (err) {
@@ -140,23 +282,42 @@ app.get("/", (req, res) => {
         res.status(500).send('Error loading shows, Please try again later');
       }
     });
-  // get requests for each cases for the events page
-  // get request for search cases
+
+    // cart session
+   
+    app.post('/addToCart', (req, res) => {
+      const itemId = req.body.itemId // event id 
+      const quantity = parseInt(req.body.quantity || 1);
+      if (itemId && quantity > 0) {
+        const existingItemIndex = req.session.cart.findIndex(item => item.id === itemId);
+        if (existingItemIndex > -1) {
+          req.session.cart[existingItemIndex].quantity += quantity;
+        } else {
+          req.session.cart.push({ id: itemId, quantity: quantity, name: req.body.itemName || `Item ${itemId}` });
+        }
+        console.log('Cart updated', req.session.cart);
+        res.json({ success: true, message: 'Item added to cart', cart: req.session.cart });
+      } else {
+         res.status(400).json({ success: false, message: 'Invalid item or quantity' });
+      }
+    });
+    app.get("/cart", (req, res) => {
+    res.render('cart', {
+      cart: req.session.cart || [],
+      isAuthenticated: req.isAuthenticated(),
+      isAdherent: req.session.isAdherent || false
+
+    });
+  });
+  // cart empty list 
+
+  // get request for cart page
+  // post, put, delete requests for cart
+  // post request to change avaliable tickets
 
 
   // requests with stripe or banking npm package to handle payments
-    passport.use(new Strategy( async function verify(email, adherent, cb){
 
-    }));
-
-  // serialize and deserialize user
-  passport.serializeUser((user, cb) => {
-  cb(null, user);
-});
-
-passport.deserializeUser((user, cb) => {
-  cb(null, user);
-});
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);
