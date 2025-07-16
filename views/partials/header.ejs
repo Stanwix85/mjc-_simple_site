@@ -6,7 +6,6 @@
     <title>Document</title>
     <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="/styles.css">
-    <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
     
@@ -22,7 +21,7 @@
                 <a class="nav-link" href="#">program</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/cart">cart</a>
+                <a class="nav-link" href="#">cart</a>
               </li>
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -38,30 +37,9 @@
           </div>
            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
             <li class="nav-item me-3">
-                <a id="cart-link" href="/cart" class="btn btn-primary position-relative">
-                    Cart <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="cart-badge" >
-                        <%= (locals.cart && locals.cart.length > 0) ? '' : 'class="d-none"' %> >
-                         <%= (locals.cart && locals.cart.length > 0) ? locals.cart.reduce((sum, item) => sum + item.quantity, 0) : 0 %>
-                    </span>
-                </a>
             </li>
-
-            <% if (locals.isAuthenticated) { %>
-                <li class="nav-item">
-                    <span class="nav-link text-dark"> Welcome, <%= locals.user ? locals.user.email : 'User' %>!
-                        <% if (locals.isAdherent) { %>
-                            <span class="badge bg-success ms-1">Adherent</span>
-                        <% } else { %>
-                            <span class="badge bg-info ms-1">Guest</span>
-                        <% } %>
-                    </span>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link btn btn-outline-dark ms-2" href="/logout">Logout</a> </li>
-            <% } else { %>
-                <li class="nav-item">
-                    <a class="nav-link btn btn-outline-dark" href="/" id="navbarLoginButton">Login</a> </li>
-            <% } %>
         </ul>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>

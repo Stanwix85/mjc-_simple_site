@@ -15,34 +15,10 @@
         <p class="card-text">Type: <%= show.show_type %></p>
         <p class="card-text">Age Range: <%= show.min_age %> - <%= show.max_age %></p>
 
-        <% if (show.quantity > 0 && show.quantity < 10) { %>
-            <div class="position-absolute top-0 start-50 translate-middle-x mt-2">
-                <span class="badge bg-warning text-dark px-3 py-2 fs-6 rounded-pill shadow-sm">Almost Full!</span>
-            </div>
-        <% } else if (show.quantity === 0) { %>
-            <div class="position-absolute top-0 start-50 translate-middle-x mt-2">
-                <span class="badge bg-danger px-3 py-2 fs-6 rounded-pill shadow-sm">Sold Out!</span>
-            </div>
-        <% } %>
         <p class="card-text fs-5 fw-bold text-success mt-auto">
-            <% if(!locals.isAdherent) {%>
                 Price: €<%= show.price %>
-            <% }else{%>
-                Price: €<%= show.price_adherent %>
-            <%} %>
         </p>
         <div class="mt-auto">
-            <form action="/addToCart" method="POST" class="d-flex align-items-center add-to-cart-form">
-                <input type="hidden" name="itemId" value="<%= show.event_id %>">
-                <input type="hidden" name="itemName" value="<%= show.title %>">
-                <input type="hidden" name="itemPrice" value="<%= !locals.isAdherent ? show.price : show.price_adherent %>">
-                <input type="hidden" name="itemDate" value="<%= show.date %>">
-                <input type="hidden" name="itemTime" value="<%= show.time %>">
-                <%if(show.quantity > 0) {%>
-                <input type="number" name="quantity" class="form-control me-2" value="1" min="1" max="<%= show.quantity < 8 ? show.quantity : 8 %>" style="width: 70px;">
-                <button type="submit" class="btn btn-primary" <%= show.quantity === 0 ? 'disabled' : '' %>>Add to Cart</button>
-                <%  } %>
-            </form>
         </div>
     </div>
 </div>
