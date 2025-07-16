@@ -32,9 +32,12 @@
             <%} %>
         </p>
         <div class="mt-auto">
-            <form action="/addToCart" method="POST" class="d-flex align-items-center">
-                <input type="hidden" name="itemId" value="<%= show.id %>">
+            <form action="/addToCart" method="POST" class="d-flex align-items-center add-to-cart-form">
+                <input type="hidden" name="itemId" value="<%= show.event_id %>">
                 <input type="hidden" name="itemName" value="<%= show.title %>">
+                <input type="hidden" name="itemPrice" value="<%= !locals.isAdherent ? show.price : show.price_adherent %>">
+                <input type="hidden" name="itemDate" value="<%= show.date %>">
+                <input type="hidden" name="itemTime" value="<%= show.time %>">
                 <%if(show.quantity > 0) {%>
                 <input type="number" name="quantity" class="form-control me-2" value="1" min="1" max="<%= show.quantity < 8 ? show.quantity : 8 %>" style="width: 70px;">
                 <button type="submit" class="btn btn-primary" <%= show.quantity === 0 ? 'disabled' : '' %>>Add to Cart</button>
@@ -53,13 +56,10 @@
             </div>
         <% } %>
     </main>
-<!-- case statements to display list of events (cases: cinema, shows, workshops) -->
 
-<!-- each event will have a picture, description, price, time/date, age group -->
 
-<!-- 10-20 events per window depending on device -->
+// !-- 10-20 events per window depending on device -->
 
-<!-- option for all events, banner on picture for nearly full and sold out< -->
 
 
 

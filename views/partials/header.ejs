@@ -6,6 +6,7 @@
     <title>Document</title>
     <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="/styles.css">
+    <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
     
@@ -38,8 +39,9 @@
            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
             <li class="nav-item me-3">
                 <a id="cart-link" href="/cart" class="btn btn-primary position-relative">
-                    Cart <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                        <%= locals.cart ? locals.cart.length : 0 %>
+                    Cart <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="cart-badge" >
+                        <%= (locals.cart && locals.cart.length > 0) ? '' : 'class="d-none"' %> >
+                         <%= (locals.cart && locals.cart.length > 0) ? locals.cart.reduce((sum, item) => sum + item.quantity, 0) : 0 %>
                     </span>
                 </a>
             </li>
@@ -69,6 +71,7 @@
          
         </div>
       </nav>
+ 
 
       <!-- search bar search by date, age range, name of event -->
 

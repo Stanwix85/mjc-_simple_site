@@ -2,19 +2,40 @@
 
 
 <!-- shows the cart list of objects when people select shows  name of show, time/date, number of tickets price and total-->
+    
 
     <main class="container my-5">
         <% if (cart && cart.length > 0) { %>
             <ul class="list-group mb-4">
+                <% let cartTotalPrice = 0; %> 
                 <% cart.forEach(item => { %>
+                    <% const itemSubtotal = item.quantity * item.price; %>
+                    <% cartTotalPrice += itemSubtotal; %> 
+
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <%= item.name %> (ID: <%= item.id %>)
-                        <span class="badge bg-primary rounded-pill">Quantity: <%= item.quantity %></span>
+                         <div class="item-details mb-2 mb-md-0 me-md-3 text-start">
+                        <h5 class="my-0"><%= item.name %></h5>
+                        <small class="text-muted">Date: <%= item.date %> | Time: <%= item.time %></small><br>
+                        <small class="text-muted">Price per ticket: €<%= item.price.toFixed(2) %></small>
+                    </div>
+
+                    <div class="item-controls d-flex align-items-center mb-2 mb-md-0 me-md-3">
+                        <button class="btn btn-outline-secondary btn-sm me-1 decrease-quantity" data-item-id="<%= item.id %>" data-item-price="<%= item.price %>" <% if (item.quantity <= 1) { %>disabled<% } %> >-</button>
+                        <span class="badge bg-primary rounded-pill mx-1 quantity-display" id="quantity-<%= item.id %>"><%= item.quantity %></span>
+                        <button class="btn btn-outline-secondary btn-sm ms-1 increase-quantity" data-item-id="<%= item.id %>" data-item-price="<%= item.price %>" <% if (item.quantity >= 8) { %>disabled<% } %> >+</button>
+                         <button type="button" class="btn btn-danger btn-sm ms-3 delete-item-btn" data-item-id="<%= item.id %>">Delete</button>
+                    </div>
+
+                    <div class="item-summary d-flex align-items-center mb-2 mb-md-0 me-md-3">
+                        <h6 class="my-0 me-2">Subtotal: €<span class="item-subtotal-display" id="subtotal-<%= item.id %>"><%= itemSubtotal.toFixed(2) %></span></h6>
                     </li>
                 <% }); %>
             </ul>
+             <div class="text-end mb-4">
+            <h3>Total: €<span id="cart-total-price"><%= cartTotalPrice.toFixed(2) %></span></h3>
+        </div>
             <div class="text-center">
-                <button class="btn btn-success btn-lg">Proceed to Checkout</button>
+                <button class="btn btn-success btn-lg" id="proceed-to-checkout-btn" >Proceed to Checkout</button>
             </div>
         <% } else { %>
             <div class="alert alert-info text-center" role="alert">
@@ -22,5 +43,203 @@
             </div>
         <% } %>
     </main>
+    <script src="/js/cart.js"></script>
 
 <%- include ("partials/footer.ejs") %>
+
+
+
+
+  <!-- <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const cartList = document.querySelector('.list-group');
+        const cartTotalPriceDisplay = document.getElementById('cart-total-price');
+
+        // Function to calculate and update the overall cart total display
+        function updateOverallCartTotal() {
+            let currentTotal = 0;
+            // Iterate over currently existing item subtotal displays
+            document.querySelectorAll('.item-subtotal-display').forEach(subtotalSpan => {
+                const value = parseFloat(subtotalSpan.textContent);
+                if (!isNaN(value)) {
+                    currentTotal += value;
+                }
+            });
+            if (cartTotalPriceDisplay) {
+                cartTotalPriceDisplay.textContent = currentTotal.toFixed(2);
+            }
+        }
+        cartList.addEventListener('click', async (event) => {
+            const target = event.target;
+            const isIncreaseBtn = target.classList.contains('increase-quantity');
+            const isDecreaseBtn = target.classList.contains('decrease-quantity');
+
+           if (isIncreaseBtn || isDecreaseBtn) {
+                const itemId = target.dataset.itemId;
+            
+            const listItem = target.closest('li.list-group-item');
+                const quantityDisplay = listItem ? listItem.querySelector('.quantity-display') : null;
+                const subtotalDisplay = listItem ? listItem.querySelector('.item-subtotal-display') : null;
+                const itemControlsDiv = listItem ? listItem.querySelector('.item-controls') : null;
+                const deleteBtn = listItem ? listItem.querySelector('.delete-item-btn') : null;
+
+                 if (!listItem || !quantityDisplay || !subtotalDisplay || !itemControlsDiv) {
+                    console.error(`CART PAGE JS: Required UI elements for item ID ${itemId} not found. Aborting quantity update.`);
+                    return;
+                }
+
+
+            const currentQuantity = parseInt(quantityDisplay.textContent, 10);
+
+            let newQuantity = currentQuantity;
+            const changeType = isIncreaseBtn ? 'increase' : 'decrease';
+
+            if (isIncreaseBtn && currentQuantity >= 8) {
+               console.log(`CART PAGE JS: Quantity limit (8) reached for item ${itemId}. No action taken.`);
+                    return;
+            } if (isDecreaseBtn && currentQuantity <= 0) {
+                console.log(`CART PAGE JS: Quantity already 0 reached for item ${itemId}. No action taken.`);
+                    return;
+            } 
+
+             itemControlsDiv.querySelectorAll('button').forEach(btn => btn.disabled = true);
+            if (deleteBtn) deleteBtn.disabled = true;
+
+            try {
+                const response = await fetch('/updateCartQuantity', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ itemId, changeType })
+                });
+            
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                console.log(`CART PAGE JS: Quantity updated for ${itemId}. New quantity: ${data.newQuantity}`);
+                // redundant 
+                if (data.newQuantity === 0) {
+                    listItem.remove(); 
+              console.log(`CART PAGE JS: Item ${itemId} successfully removed from DOM (quantity became 0).`);
+            } else { 
+                quantityDisplay.textContent = data.newQuantity;
+                subtotalDisplay.textContent = data.newSubtotal.toFixed(2);
+            
+            const increaseBtnElement = itemControlsDiv.querySelector('.increase-quantity');
+            const decreaseBtnElement = itemControlsDiv.querySelector('.decrease-quantity')
+            if (increaseBtn) increaseBtn.disabled = data.newQuantity >= 8;
+            if (decreaseBtn) decreaseBtn.disabled = data.newQuantity <= 1;
+
+            if(deleteBtn) deleteBtn.disabled = false;{
+            console.log(`CART PAGE JS: UI updated for ${itemId}. Buttons managed.`);
+                };
+            
+            updateOverallCartTotal();
+             if (typeof updateCartBadge === 'function') {
+                        updateCartBadge(data.cart);
+                    }; 
+            if (data.cart.length === 0){
+                const mainContainer = document.querySelector('main.container');
+                if (mainContainer) {
+                    mainContainer.innerHTML = `
+                     <div class="alert alert-info text-center" role="alert">
+                                    Your cart is empty. Start adding some tickets!
+                                </div>`;
+                }
+            }
+            
+            
+
+
+
+            } else {
+                console.error("CART PAGE JS: Server reported error updating quantity:", data.message);
+                    alert("Error updating quantity: " + data.message);
+
+                const increaseBtnElement = itemControlsDiv.querySelector('.increase-quantity');
+                const decreaseBtnElement = itemControlsDiv.querySelector('.decrease-quantity');
+                    
+                if (increaseBtnElement) increaseBtnElement.disabled = currentQuantity >= 8;
+                if (decreaseBtnElement) decreaseBtnElement.disabled = currentQuantity <=1;
+                if(deleteBtn) deleteBtn.disabled = fasle;
+            }
+        }catch (error) {
+              console.error("CART PAGE JS: Network or unexpected error during quantity update:", error);
+                alert("An unexpected error occurred. Please try again.");
+
+            const increaseBtnElement = itemControlsDiv.querySelector('.increase-quantity');
+                const decreaseBtnElement = itemControlsDiv.querySelector('.decrease-quantity');
+                    
+                if (increaseBtnElement) increaseBtnElement.disabled = currentQuantity >= 8;
+                if (decreaseBtnElement) decreaseBtnElement.disabled = currentQuantity <=1;
+                if(deleteBtn) deleteBtn.disabled = false;
+        } 
+        }
+    
+        
+    }); 
+
+        cartList.addEventListener('click', async (event) => {
+        const target = event.target;
+        if (target.classList.contains('delete-item-btn')) {
+            const itemId = target.dataset.itemId;
+            const listItem = target.closest('li.list-group-item');
+            if (!listItem) {
+                console.error(`CART PAGE JS: List item for ${itemId} not found for deletion. Aborting.`);
+                return;
+            }
+            console.log(`CART PAGE JS: Attempting to delete item ID: ${itemId}`);
+
+            if (!confirm('Are you sure you want to remove this item from your cart?')) {
+                return; // User cancelled
+            }
+
+            listItem.querySelectorAll('button').forEach(btn => btn.disabled = true);
+            const quantityInput = listItem.querySelector('input[type="number"]');
+            if (quantityInput) quantityInput.disabled = true; 
+
+            try {
+                const response = await fetch('/deleteCartItem', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ itemId })
+                });
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    console.log(`CART PAGE JS: Item ${itemId} successfully deleted.`);
+                    listItem.remove();
+                    updateOverallCartTotal();
+
+                    // Update global cart badge
+                    if (typeof updateCartBadge === 'function') {
+                        updateCartBadge(data.cart);
+                    }
+
+                    // If cart becomes empty, show the "Your cart is empty" message
+                    if (data.cart.length === 0) {
+                        const mainContainer = document.querySelector('main.container');
+                        if (mainContainer) {
+                            mainContainer.innerHTML = `
+                                <div class="alert alert-info text-center" role="alert">
+                                    Your cart is empty. Start adding some tickets!
+                                </div>`;
+                        }
+                    }
+
+                } else {
+                    console.error("CART PAGE JS: Server reported error deleting item:", data.message);
+                    alert("Error deleting item: " + data.message);
+                    listItem.querySelectorAll('button').forEach(btn => btn.disabled = false);
+                    if (quantityInput) quantityInput.disabled = false;
+                }
+            } catch (error) {
+                console.error("CART PAGE JS: Network or unexpected error during item deletion:", error);
+                alert("An unexpected error occurred. Please try again.");
+                listItem.querySelectorAll('button').forEach(btn => btn.disabled = false);
+                    if (quantityInput) quantityInput.disabled = false;
+            }
+        }
+    });
+ 
+  </script> -->
+

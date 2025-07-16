@@ -74,21 +74,24 @@
                 <form id="emailVerifyForm" action="/verify-email" method="POST">
                     <div class="mb-3">
                         <label for="memberEmail" class="form-label">Your Email</label>
-                        <input type="email" class="form-control" id="memberEmail" name="email" required>
+                        <input type="email" class="form-control" id="memberEmail" name="email" placeholder="Optional" value="<%= locals.userEmail || '' %>">
                         <!-- Password field is required by LocalStrategy, but can be hidden/ignored -->
                         <input type="hidden" name="password" value="temp_password_for_adherent_check">
                     </div>
-                    <button type="submit" class="btn btn-primary w-100 mb-2">Verify Membership</button>
+                    <div id="emailVerifyMessage" class="alert d-none" role="alert"></div>
+                    <button type="submit" class="btn btn-primary w-100 mb-2">Enter with email (adherent or guest)</button>
                 </form>
-                <form action="/guest-login" method="POST">
-                    <button type="submit" class="btn btn-secondary w-100">Continue as Guest</button>
+
+                
+                <form id="guestLoginForm" action="/guest-login" method="POST" class="guest-login-form">
+                    <button type="submit" class="btn btn-secondary w-100">Continue without email</button>
                 </form>
             </div>
             <div class="modal-footer justify-content-center">
                 <small class="text-muted">
                     Use "member@example.com" to test as an adherent.<br>
                     Use "guest@example.com" or any other email to test as a guest.
-                    <a href="https://mjc-annemasse.goasso.org/compte/inscription">Click here to become a aderent, receive news and discounts</a>
+                    <a target="_blank" href="https://mjc-annemasse.goasso.org/compte/inscription">Click here to become a aderent, receive news and discounts</a>
                 </small>
             </div>
         </div>
@@ -97,8 +100,8 @@
 
 <script>
     // These variables receive their values from the EJS server-side rendering
-    const isAuthenticated = <%- locals.isAuthenticated %>;
-    const isAdherent = <%- locals.isAdherent %>;
+    const isAuthenticated = <%- JSON.stringify(locals.isAuthenticated || false) %>;
+    const isAdherent = <%- JSON.stringify(locals.isAdherent || false)  %>;
     const currentUser = <%- JSON.stringify(locals.user || null) %>;
 
 
