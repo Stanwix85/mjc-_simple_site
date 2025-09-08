@@ -75,45 +75,48 @@ app.get("/", (req, res) => {
             showType = undefined;
           
       
-      const minAgeParam = req.query.min_age ? parseInt(req.query.min_age) : undefined;
-      const maxAgeParam = req.query.max_age ? parseInt(req.query.max_age) : undefined;
+      const minAgeParam = req.query.min_age ? parseInt(req.query.min_age, 10) : undefined;
+      const maxAgeParam = req.query.max_age ? parseInt(req.query.max_age, 10) : undefined;
 
 
     // building query
-          let queryText = 'SELECT * FROM events';
+        let queryText = `SELECT * FROM consolidated_shows_view`;
         const queryParams = [];
         let whereClauses = []
         let paramIndex = 1; 
       if (showType){
-        whereClauses.push(`LOWER (events.show_type) = $${paramIndex}`);
+        whereClauses.push(`(show_type) = $${paramIndex}`);
         queryParams.push(showType.toLowerCase());
-        paramIndex++
+        paramIndex++;
+        // if (showType.toLowerCase() === 'cinema'){
+        //   queryText += ' JOIN cinema As c ON se.show_id = c.cinema_id';
+        // } else if (showType.toLowerCase() === 'workshop'){
+        //   queryText += ' JOIN workshop AS w ON se.show_id = w.workshop_id';
+        // } else if (showType.toLowerCase() === 'show') {
+        //   queryText += ' JOIN shows As s ON se.show_id = s.show_id';
+        // }
         console.log(`Filtering by showType: ${showType.toLowerCase()}`)
       } else {
         console.log("No specific show types requested")
       };
 
 
-      if (minAgeParam !== undefined && !isNaN(minAgeParam) && minAgeParam >= 0) {
-        whereClauses.push(`events.max_age >=$${paramIndex}`);
-        queryParams.push(minAgeParam);
-        paramIndex++;
-    }
-     if (maxAgeParam !== undefined && !isNaN(maxAgeParam) && maxAgeParam >= 0) {
-        whereClauses.push(`events.min_age <= $${paramIndex}`);
-        queryParams.push(maxAgeParam);
-        paramIndex++;
-    }
+      if (minAgeParam !== undefined && !isNaN(minAgeParam) && minAgeParam >= 0 && maxAgeParam !== undefined && !isNaN(maxAgeParam) && maxAgeParam >= 0) {
+          const ageClause = `(min_age <= $${paramIndex + 1} AND max_age >= $${paramIndex})`;
+          whereClauses.push(ageClause);
+          queryParams.push(minAgeParam);
+          queryParams.push(maxAgeParam);
+          paramIndex += 2;
+}
+
 // combining where clause
     if (whereClauses.length > 0) {
       queryText += ' WHERE ' + whereClauses.join(' AND ');
-    } else if (!showType && minAgeParam === undefined && maxAgeParam === undefined){
-      console.log('NO filters applied, fetching all events')
-    }
+    } 
 
-      queryText += ' ORDER BY date ASC, time ASC';
-      console.log(queryText)
-      console.log(queryParams)
+      queryText += ' ORDER BY event_date ASC, event_time ASC';
+      console.log(queryText);
+      console.log(queryParams);
 
       let shows = []
       try {
@@ -121,7 +124,7 @@ app.get("/", (req, res) => {
         queryText, queryParams);
         shows = result.rows;
 
-        let showTypeDisplay = "All";
+        let showTypeDisplay = "ALL";
         if (showType){
           showTypeDisplay = showType.charAt(0).toUpperCase() + showType.slice(1);
         } else if (maxAgeParam != undefined && !isNaN(minAgeParam) || maxAgeParam != undefined && !isNaN(maxAgeParam)) {
@@ -131,12 +134,71 @@ app.get("/", (req, res) => {
         res.render('events', {
           shows: shows, 
           showTypeDisplay: showTypeDisplay
+        
         });
       } catch (err) {
         console.error('Database query error:', err.stack);
         res.status(500).send('Error loading shows, Please try again later');
       }
     });
+    // get request calenders 
+    app.get("/calender", async (req, res) => {
+      let showType = req.query.showType ? req.query.showType.trim() : undefined;
+       let queryText = `SELECT * FROM consolidated_shows_view`;
+        const queryParams = [];
+        let whereClauses = []
+        let paramIndex = 1; 
+      if (showType){
+        whereClauses.push(`(show_type) = $${paramIndex}`);
+        queryParams.push(showType.toLowerCase());
+        paramIndex++;
+      }
+      if (whereClauses.length > 0) {
+        queryText += ' WHERE ' + whereClauses.join(' AND ');
+    }
+    queryText += ' ORDER BY event_date ASC, event_time ASC';
+          let shows = []
+      try {
+        const result = await pool.query(
+        queryText, queryParams);
+        shows = result.rows;
+
+        let showTypeDisplay = "ALL";
+        if (showType){
+          showTypeDisplay = showType.charAt(0).toUpperCase() + showType.slice(1);
+        }
+
+        res.render('calender', {
+          shows: shows, 
+          showTypeDisplay: showTypeDisplay
+           });
+      } catch (err) {
+        console.error('Database query error:', err.stack);
+        res.status(500).send('Error loading shows, Please try again later');
+      };
+          });
+        // get request locations
+        app.get("/locations", async (req, res) => {
+          try{
+            res.render('locations');
+          } catch (err) {
+             res.status(500).send('Error loading shows, Please try again later');
+          };
+        });
+        app.get("/info", async (req, res) => {
+          try{
+            res.render('info');
+          } catch (err) {
+             res.status(500).send('Error loading shows, Please try again later');
+          };
+        });
+         app.get("/questions", async (req, res) => {
+          try{
+            res.render('questions');
+          } catch (err) {
+             res.status(500).send('Error loading shows, Please try again later');
+          };
+        });
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);

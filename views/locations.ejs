@@ -1,0 +1,72 @@
+<%- include ("partials/header.ejs") %>
+
+
+ <div id="view-window">
+    
+    
+    <ul class="menu">
+        <li> <a href="#map"> Top </a></li>
+        <li> <a href="#le-perrier"> Le Perrier </a></li>
+        <li> <a href="#la-yourte"> La Yourte </a></li>
+        <li> <a href="#mjc-centre"> Site MJC Centre </a></li>
+        <li> <a href="#villa-du-parc"> Villa du Parc </a></li>
+        <li> <a href="#chateau-rouge"> Chateau Rouge</a></li>
+        <li> <a href="#la-chamarette"> École La Chamarette</a></li>
+    </ul>
+   
+    <div id="map" class="bg">
+        <div class="bg-text">
+            <h2> Lieux du festival </h2>
+            <p>adress, infor etc Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eius excepturi velit ipsa tempore, doloremque incidunt odio natus.</p>
+        </div></div>
+
+        <div id="le-perrier" class="bg">
+            <div class="bg-text">
+            <h2> Le Perrier </h2>
+            <p>adress, infor etc Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eius excepturi velit ipsa tempore, doloremque incidunt odio natus.</p></div>
+        </div>
+
+        <div id="la-yourte" class="bg">
+            <div class="bg-text">
+            <h2> La Yourte </h2>
+            <p>adress, infor etc Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eius excepturi velit ipsa tempore, doloremque incidunt odio natus.</p></div>
+        </div>
+
+        <div id="mjc-centre" class="bg">
+            <div class="bg-text">
+            <h2> Site MJC Centre  </h2>
+            <p>adress, infor etc Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eius excepturi velit ipsa tempore, doloremque incidunt odio natus.</p></div>
+        </div>
+
+        <div id="villa-du-parc" class="bg">
+            <div class="bg-text">
+            <h2> Villa du Parc </h2>
+            <p>adress, infor etc Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eius excepturi velit ipsa tempore, doloremque incidunt odio natus.</p></div>
+        </div>
+          <div id="chateau-rouge" class="bg">
+             <div class="bg-text">
+            <h2> Chateau Rouge </h2>
+            <p>adress, infor etc Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eius excepturi velit ipsa tempore, doloremque incidunt odio natus.</p></div>
+        </div>
+          <div id="la-chamarette" class="bg">
+            <div class="bg-text">
+            <h2> École la Chamarette </h2>
+            <p>adress, infor etc Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eius excepturi velit ipsa tempore, doloremque incidunt odio natus.</p></div>
+        </div>
+
+</div>
+<script>
+    const menu = document.querySelector('.menu');
+    const menuOffsetTop = menu.offsetTop;
+    window.addEventListener('scroll', () => {
+        if(window.pageYOffset >= menuOffsetTop) {
+            menu.classList.add('sticky');
+        } else {
+            menu.classList.remove('sticky');
+        }
+    })
+</script>
+
+
+
+<%- include ("partials/footer.ejs") %>

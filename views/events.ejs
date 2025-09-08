@@ -6,17 +6,17 @@
                 <% shows.forEach(function(show) { %>
                     <div class="col">
                        <div class="card h-100">
-    <img src="/images/shows/<%= show.image %>" class="card-img-top" alt="<%= show.title %>">
+    <img src="/images/<%= show.photo_link %>" class="card-img-top" alt="<%= show.title %>">
     <div class="card-body d-flex flex-column">
         <h5 class="card-title"><%= show.title %></h5>
         <p class="card-text"><%= show.description %></p>
-        <p class="card-text">Date: <%= show.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
-        <p class="card-text">Time: <%= show.time.slice(0, 5) %></p>
+        <p class="card-text">Date: <%= show.event_date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
+        <p class="card-text">Time: <%= show.event_time.slice(0, 5) %></p>
         <p class="card-text">Type: <%= show.show_type %></p>
         <p class="card-text">Age Range: <%= show.min_age %> - <%= show.max_age %></p>
 
         <p class="card-text fs-5 fw-bold text-success mt-auto">
-                Price: €<%= show.price %>
+                Price: €<%= show.price_adult %>
         </p>
         <div class="mt-auto">
         </div>
@@ -34,7 +34,8 @@
     </main>
 
 
-// !-- 10-20 events per window depending on device -->
+<!--10-20 events per window depending on device--> 
+<!-- button to go back to home page -->
 
 
 

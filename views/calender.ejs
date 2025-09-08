@@ -1,0 +1,48 @@
+<%- include ("partials/header.ejs") %>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th scope="col">Title</th>
+      <th scope="col">Place</th>
+      <th scope="col">Age Range</th>
+      <th scope="col">Date</th>
+      <th scope="col">Time</th>
+      <th scope="col">Duration</th>
+      <th scope="col">Type</th>
+      <th scope="col">Places</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% if (shows && shows.length > 0) { %>
+      <% shows.forEach(function(show) { %>
+        <tr>
+          <td><%= show.title %></td>
+          <td><%= show.location %></td>
+          <td><%= show.min_age %> - <%= show.max_age %></td>
+          <td><%= show.event_date.toLocaleDateString('en-US', { year: 'numeric', month: 'numeric', day: 'numeric' }) %></td>
+          <td><%= show.event_time.slice(0, 5) %></td>
+          <td><%= show.duration %> min</td>
+          <td><%= show.show_type %></td>
+          <td>
+            <% if (show.places > 10) { %>
+              <span class="dot" style="height: 16px; width: 16px; background-color: #28a745; border-radius: 50%; display: inline-block;" title="More than 10 places left"></span>
+            <% } else if (show.places > 0 && show.places <= 10) { %>
+              <span class="dot" style="height: 16px; width: 16px; background-color: #ffc107; border-radius: 50%; display: inline-block;" title="Less than 10 places left"></span>
+            <% } else { %>
+              <span class="dot" style="height: 16px; width: 16px; background-color: #dc3545; border-radius: 50%; display: inline-block;" title="Sold out"></span>
+            <% } %>
+          </td>
+        </tr>
+      <% }); %>
+    <% } else { %>
+      <tr>
+        <td colspan="7" class="text-center text-muted py-4">No events found that match your filters.</td>
+      </tr>
+    <% } %>
+   
+  </tbody>
+</table>
+
+
+<%- include ("partials/footer.ejs") %>

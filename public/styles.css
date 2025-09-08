@@ -14,18 +14,113 @@ body {
     background-color: whitesmoke;
     
 }
+ .navbar-toggler {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* location picture roll css universal for now */
+div#view-window{
+    width: 100%;
+    height: 80%;
+    
+}
+div#view-window ul.menu{
+    /* position: fixed; */
+   list-style-type: none;
+            z-index: 999;
+            background-color: rgb(155, 25, 25);
+            width: 100%;
+            list-style-type: none;
+            padding: 0;
+            margin-top: -4px;
+            height: auto;
+            text-align: center;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+}
+ul.menu.sticky {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+div#view-window ul.menu li a{
+    text-decoration: none;
+    color: aliceblue;
+    padding: 10px 15px;
+    display: block;
+}
+    div.bg{
+            height: 100vh;
+            /* position: relative; */
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        div.bg-text {
+            display: block;
+            color: aliceblue;
+            text-shadow:-1px -1px 0 #000,  /* top-left corner */
+                        1px -1px 0 #000,  /* top-right corner */
+                        -1px  1px 0 #000,  /* bottom-left corner */
+                        1px  1px 0 #000; /* bottom-right corner */
+            text-align: center;
+            width: 80%;
+
+        }
+     div#map{
+            background-image: url("/images/loc/map.jpg");
+        }
+        div#le-perrier{
+            background-image: url("/images/loc/le-perrier.jfif");
+        }
+        div#la-yourte{
+            background-image: url("/images/loc/la-yourte.jfif");
+        }
+        div#mjc-centre{
+            background-image: url("/images/loc/mjc.jfif");
+        }
+        div#villa-du-parc{
+            background-image: url("/images/loc/villa.jfif");
+        }
+        div#chateau-rouge{
+            background-image: url("/images/loc/chateau-rouge.jfif");
+        }
+        div#la-chamarette{
+            background-image: url("/images/loc/la-chamarette.jfif");
+        }   
+  
+
 /* end global css */
 /* header start */
+.navbar {
+    margin-bottom: 0;
+    padding: 0;
+}
 #cart {
     margin: 1%;
 }
 nav > div {
     background-color: darkmagenta;
+    margin-bottom: 0;
+     border-bottom: 5px solid transparent ;
 }
 .nav-link {
     color: azure;
 }
 /* header end  */
+/* footer */
+footer{
+    background-color: blue;
+    height: 80px;
+}
 
 
 /* body/index.ejs smartphone*/
@@ -72,9 +167,9 @@ nav > div {
     }
     .card {
         width: 100%;
-        height: auto;
-        
+        height: auto; 
     }
+    
     }
     /* end laptop */
 /* body/index.ejs desktop */
