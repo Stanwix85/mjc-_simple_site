@@ -5,21 +5,99 @@
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                 <% shows.forEach(function(show) { %>
                     <div class="col">
-                       <div class="card h-100">
-    <img src="/images/<%= show.photo_link %>" class="card-img-top" alt="<%= show.title %>">
+                        <% let cardClass = "card h-100"; %>
+                        <% if (show.showType === "cinema") { %>
+                            <% cardClass += " cinema-card"; %>
+                        <% } else if (show.showType === "show") { %>
+                            <% cardClass += " show-card"; %>
+                        <% } else if (show.showType === "workshop") { %>
+                            <% cardClass += " workshop-card"; %>
+                        <% } %>
+                       <div class="<%= cardClass %>">
+                        <h2 class="card-title"><%= show.title %></h2>
+    <img src="/images/Visuels spectacles/<%= show.photo_link %>" class="card-img-top-show" alt="<%= show.title %>">
     <div class="card-body d-flex flex-column">
-        <h5 class="card-title"><%= show.title %></h5>
-        <p class="card-text"><%= show.description %></p>
-        <p class="card-text">Date: <%= show.event_date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
-        <p class="card-text">Time: <%= show.event_time.slice(0, 5) %></p>
-        <p class="card-text">Type: <%= show.show_type %></p>
-        <p class="card-text">Age Range: <%= show.min_age %> - <%= show.max_age %></p>
-
-        <p class="card-text fs-5 fw-bold text-success mt-auto">
-                Price: €<%= show.price_adult %>
-        </p>
-        <div class="mt-auto">
+                   <% if (show.showType === "cinema") { %>
+                      <%if(show.trailor_link != null){%>
+                        <h3 class="card-text loc"><a href="<%= show.trailor_link %>" >watch now</a></h3>
+                      <% } %>
+                    <% } else if (show.showType === "show") { %>
+                        <%if(show.subtitle != null){%>
+                        <h3 class="card-text loc"><%= show.subtitle %></h3>
+                      <% } %>
+                      <%if(show.animator != null){%>
+                        <h3 class="card-text loc">Avec: <%= show.animator %></h3>
+                        <% } %>
+                        <%if(show.company != null){%>
+                        <h3 class="card-text loc"><%= show.company %></h3>
+                        <% } %>
+                    <% } else if (show.showType === "workshop") { %>
+                        <%if(show.subtitle != null){%>
+                        <h3 class="card-text loc"><%= show.subtitle %></h3>
+                      <% } %>
+                      <%if(show.animator != null){%>
+                        <h3 class="card-text loc"><%= show.animator %></h3>
+                        <% } %>
+                        <%if(show.company != null){%>
+                        <h3 class="card-text loc">Animé par: <%= show.company %></h3>
+                        <% } %> 
+                    <% } %>
+        
+        <p class="card-text"><%= show.explication %></p>
+        <p class="card-text">Durée: <%= show.duration.slice(0,5) %></p>
+        <h3 class="card-text loc">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="25px" height="30px" viewBox="0 0 256 256" xml:space="preserve">
+<g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;" transform="translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)">
+	<path d="M 45 90 c -1.415 0 -2.725 -0.748 -3.444 -1.966 l -4.385 -7.417 C 28.167 65.396 19.664 51.02 16.759 45.189 c -2.112 -4.331 -3.175 -8.955 -3.175 -13.773 C 13.584 14.093 27.677 0 45 0 c 17.323 0 31.416 14.093 31.416 31.416 c 0 4.815 -1.063 9.438 -3.157 13.741 c -0.025 0.052 -0.053 0.104 -0.08 0.155 c -2.961 5.909 -11.41 20.193 -20.353 35.309 l -4.382 7.413 C 47.725 89.252 46.415 90 45 90 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(36,37,37); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/>
+	<path d="M 45 45.678 c -8.474 0 -15.369 -6.894 -15.369 -15.368 S 36.526 14.941 45 14.941 c 8.474 0 15.368 6.895 15.368 15.369 S 53.474 45.678 45 45.678 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/>
+</g>
+</svg>   <%= show.location %></h3>
+        <div class="mt-3 div-table">
+                <table class="table table-borderless table-sm">
+  <tbody class="table-date">
+    <% show.show_info.forEach(function(info) { %>
+      <tr>
+        <th class="text-start">
+          <i class="bi bi-calendar"></i> 
+          <%= new Date(info.date).toLocaleDateString('en-US', { weekday: 'long', day: 'numeric' }) %>
+        </th>
+        <td>
+          <table class="table table-borderless table-sm">
+            <tbody>
+              <% info.times.forEach(function(group) { %>
+                <tr>
+                  <td>
+                    <i class="bi bi-clock"></i> 
+                    <%= group.times.map(t => t.slice(0,5)).join(' | ') %>
+                  </td>
+                  <td>
+                    <% if (group.min_age !== null && group.max_age !== null && group.min_age !== 0 && group.max_age !== 0) { %>
+                      <p class="mb-0 text-muted fst-italic"><%= group.min_age %>-<%= group.max_age %> ans</p>
+                    <% } %>
+                    <% if (group.parent_and_child) { %>
+                      <span class="badge bg-secondary">Parent/Enfant</span>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    <% }); %>
+  </tbody>
+</table>
         </div>
+        <table class="table table-sm text-end">
+  <tbody>
+    <% show.price_list.forEach(priceItem => { %>
+      <tr>
+        <td class="text-start"><%= priceItem.tarif %>:</td>
+        <td>€<%= priceItem.price %></td>
+      </tr>
+    <% }); %>
+  </tbody>
+</table>
     </div>
 </div>
                     </div>
@@ -48,3 +126,4 @@
 
 
 <%- include ("partials/footer.ejs") %>
+

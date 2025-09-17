@@ -1,10 +1,103 @@
 
 
 <footer>
-    This is my footer
+    <div class="foot-nav">
+    
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/info">about festimom</a></li>
+        <li><a href="#cinema">about Cinema</a></li>
+        <li><a href="#shows">about Shows</a></li>
+        <li><a href="#workshop">about Workshops</a></li>
+        <li><a href="#info">info practique</a></li>
+        <li><a href="/questions">questions</a></li>
+        <li><a href="#contact">contact</a></li>
+        <li><a href="/events">All events</a></li>
+    </ul>
+    <ul>
+        <li><a href="">events</a></li>
+        <li><a href="/events?type=cinema">Cinema</a></li>
+        <li><a href="/events?type=show">Shows</a></li>
+        <li><a href="/events?type=workshop">Workshops</a></li>
+        <li><a href="/events">All events</a></li>
+    </ul>
+    <ul>
+        <li><a href="/locations">Locations</a></li>
+        <li> <a href="#le-perrier"> Le Perrier </a></li>
+        <li> <a href="#la-yourte"> La Yourte </a></li>
+        <li> <a href="#mjc-centre"> Site MJC Centre </a></li>
+        <li> <a href="#villa-du-parc"> Villa du Parc </a></li>
+        <li> <a href="#chateau-rouge"> Chateau Rouge</a></li>
+        <li> <a href="#marianne-cohn"> École maternelle Marianne Cohn</a></li>
+    </ul>
+    <ul>
+        <li><a href="">calender</a></li>
+       <li><a href="/calender?showType=cinema">Cinema</a></li>
+        <li><a href="/calender?showType=show">Shows</a></li>
+        <li><a href="/calender?showType=workshop">Workshops</a></li>
+        <li><a href="/calender">All events</a></li>
+    </ul>
+    </div>
+    <div class="icon-carousel-container">
+  <div class="icon-carousel-wrapper">
+    <a href="#"><img src="/images/Logos/Logo Annemasse Agglo en RVB.jpg" alt="Logo Annemasse Agglo" /></a>
+    <a href="#"></a><img class="logo" src="/images/Logos/Logo APE La Fontaine.jpg" alt="Logo APE La Fontaine"></a>
+    <a href="#"></a><img class="logo" src="/images/Logos/Logo Château Rouge.svg" alt="Logo Annemasse Agglo"></a>
+    <a href="#"></a><img class="logo" src="/images/Logos/Logo combat d'Alya.png" alt="Logo combat d'Alya"></a>
+    <a href="#"></a><img class="logo" src="/images/Logos/Logo Annemasse Agglo.jpg" alt="Logo Annemasse Agglo"></a>
+    <a href="#"></a><img class="logo" src="/images/Logos/Logo Conseil départemental de Haute Savoie.png" alt="Logo départemental de Haute Savoie"></a>
+    <a href="#"></a><img class="logo" src="/images/Logos/Logo EVAV.jpg" alt="Logo EVAV"></a>
+    <a href="#"></a><img class="logo" src="/images/Logos/Logo EVS.jpg" alt="Logo EVS"></a>
+    <a href="#"></a><img class="logo"  src="/images/Logos/Logo Festijeux.png" alt="Logo Festijeux"></a>
+    <a href="#"></a><img class="logo" src="/images/Logos/Logo L'eau Vive.PNG" alt="Logo L'eau Vive"></a>
+    <a href="#"></a><img class="logo" src="/images/Logos/Logo La Bulle.png" alt="Logo La Bulle"></a>
+    <a href="#"></a><img class="logo" src="/images/Logos/Logo Mamans de coeur.PNG" alt="Logo Mamans de coeur"></a>
+    </div>
+</div>
+    <h5>social media links mjc, festimon any hashtags</h5>
+    <h5>Website by Andrew Stanwix - Hestia Home 74</h5>
     <!-- contact info, social media, hover animation, link to main mjc site  -->
 </footer>
 
 <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script>
+    const carouselWrapper = document.querySelector('.icon-carousel-wrapper');
+const icons = document.querySelectorAll('.icon-carousel-wrapper a');
+let currentIndex = 0;
+const totalIcons = icons.length;
+
+function rotateCarousel() {
+  const visibleIcons = getVisibleIconsCount();
+  currentIndex = (currentIndex + 1) % totalIcons;
+  
+  if (currentIndex + visibleIcons > totalIcons) {
+    currentIndex = 0; // Reset to the start to loop smoothly
+  }
+  
+  const iconWidth = icons[0].offsetWidth + (parseFloat(getComputedStyle(icons[0]).marginRight) * 2);
+  const offset = -currentIndex * (iconWidth * 3);
+  carouselWrapper.style.transform = `translateX(${offset}px)`;
+}
+
+// Function to determine how many icons should be visible
+function getVisibleIconsCount() {
+  const width = window.innerWidth;
+  if (width >= 1024) {
+    return 5;
+  } else if (width >= 768) {
+    return 4;
+  } else {
+    return 3;
+  }
+}
+
+setInterval(rotateCarousel, 2000); // Rotate every 8 seconds
+
+// Optional: Recalculate and reset on window resize
+window.addEventListener('resize', () => {
+    currentIndex = 0;
+    rotateCarousel();
+});
+</script>
 </body>
 </html>
